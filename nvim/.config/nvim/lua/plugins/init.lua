@@ -8,11 +8,6 @@ vim.api.nvim_create_autocmd("PackChanged", {
       if not ev.data.active then vim.cmd.packadd("nvim-treesitter") end
       vim.cmd("TSUpdate")
     end
-    -- nvim-dbee は Go 製のバックエンドを別途ダウンロードする
-    if name == "nvim-dbee" and (kind == "install" or kind == "update") then
-      if not ev.data.active then vim.cmd.packadd("nvim-dbee") end
-      require("dbee").install()
-    end
   end,
 })
 
@@ -43,10 +38,6 @@ vim.pack.add({
 
   -- Format
   gh("stevearc/conform.nvim"),
-
-  -- Database
-  gh("MunifTanjim/nui.nvim"),
-  gh("kndndrj/nvim-dbee"),
 })
 
 require("plugins.ui")
@@ -55,4 +46,3 @@ require("plugins.treesitter")
 require("plugins.completion")
 require("plugins.lsp")
 require("plugins.format")
-require("plugins.database")
