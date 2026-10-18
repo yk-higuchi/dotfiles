@@ -1,0 +1,78 @@
+#!/bin/bash
+#
+# clear-xcode-cache - Xcode / Swift Package Manager のキャッシュを削除して容量を解放する
+#
+# 使い方:
+#   clear-xcode-cache        対象一覧とサイズを表示し、y/N で確認してから削除
+#   clear-xcode-cache -y     確認をスキップして即削除 (--yes も可)
+#   clear-xcode-cache -h     ヘルプを表示 (--help も可)
+
+set -euo pipefail
+
+# 削除対象。存在しないものは自動でスキップされる。
+TARGETS=(
+  "$HOME/Library/org.swift.swiftpm"
+  "$HOME/Library/Caches/org.swift.swiftpm"
+  "$HOME/Library/Developer/Xcode/DerivedData"
+  "$HOME/Library/Caches/com.apple.dt.Xcode"
+  "$HOME/Library/Caches/com.apple.dt.Xcode.sourcecontrol.Git"
+  "$HOME/Library/Caches/com.apple.dt.Xcode.ITunesSoftwareService"
+  # "$HOME/Library/Developer/Xcode/iOS DeviceSupport"
+  "$HOME/Library/Developer/Xcode/DocumentationCache"
+  "$HOME/Library/Developer/CoreSimulator/Caches"
+)
+
+usage() {
+  cat <<'EOF'
+clear-xcode-cache - Xcode / Swift Package Manager のキャッシュを削除して容量を解放する
+
+使い方:
+  clear-xcode-cache        対象一覧とサイズを表示し、y/N で確認してから削除
+  clear-xcode-cache -y     確認をスキップして即削除 (--yes も可)
+  clear-xcode-cache -h     ヘルプを表示 (--help も可)
+EOF
+  exit 0
+}
+
+assume_yes=0
+for arg in "$@"; do
+  case "$arg" in
+    -y|--yes) assume_yes=1 ;;
+    -h|--help) usage ;;
+    *) echo "Unknown option: $arg" >&2; exit 2 ;;
+  esac
+done
+
+# 存在する対象だけ収集しつつサイズを表示
+existing=()
+echo "削除対象:"
+for path in "${TARGETS[@]}"; do
+  if [ -e "$path" ]; then
+    size=$(du -sh "$path" 2>/dev/null | cut -f1)
+    printf '  [%s] %s\n' "${size:-?}" "$path"
+    existing+=("$path")
+  else
+    printf '  [skip] %s (存在しません)\n' "$path"
+  fi
+done
+
+if [ "${#existing[@]}" -eq 0 ]; then
+  echo "削除対象はありません。"
+  exit 0
+fi
+
+if [ "$assume_yes" -ne 1 ]; then
+  printf '\n上記を削除しますか? [y/N] '
+  read -r reply
+  case "$reply" in
+    [yY]|[yY][eE][sS]) ;;
+    *) echo "中止しました。"; exit 0 ;;
+  esac
+fi
+
+for path in "${existing[@]}"; do
+  echo "削除中: $path"
+  rm -rf "$path"
+done
+
+echo "完了しました。"

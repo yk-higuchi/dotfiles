@@ -10,13 +10,14 @@ macOS 用の設定ファイル。[GNU Stow](https://www.gnu.org/software/stow/) 
 | `starship` | `~/.config/starship.toml` |
 | `ghostty` | `~/.config/ghostty/config`（Ghostty と cmux が読み込む） |
 | `nvim` | `~/.config/nvim`（ディレクトリごとリンクする） |
+| `bin` | `~/.local/bin` のスクリプト（下記） |
 
 ## セットアップ
 
 ```sh
 git clone git@github.com:yk-higuchi/dotfiles.git ~/dotfiles
 brew bundle --file ~/dotfiles/Brewfile
-cd ~/dotfiles && stow zsh starship ghostty nvim
+cd ~/dotfiles && stow zsh starship ghostty nvim bin
 ```
 
 既存の `~/.zshrc` や `~/.config/nvim` などがあると Stow はリンクを張らずに止まるので、退避してから実行する。
@@ -30,6 +31,18 @@ cd ~/dotfiles && stow zsh starship ghostty nvim
 ## 変更の反映
 
 `~/.zshrc` などはこのリポジトリへのリンクなので、どちらを編集しても同じファイルが変わる。新しいパッケージを追加したときは `stow <パッケージ名>` を実行する。
+
+## スクリプト（`bin`）
+
+`~/.local/bin` は `.zshrc` で PATH に入っているので、コマンド名だけで実行できる。
+
+| コマンド | 内容 |
+| --- | --- |
+| `update` | Homebrew、Rust、Deno、krew、SDKMAN、Mason（Neovim）、Claude Code をまとめて更新する。入っていないツールはスキップする |
+| `clear-gradle-cache` | Gradle のキャッシュを削除する（確認あり。`-y` で確認なし） |
+| `clear-xcode-cache` | Xcode / Swift Package Manager のキャッシュを削除する（確認あり。`-y` で確認なし） |
+
+Neovim のプラグインは `update` の対象外。Neovim で `<Space>pu` を実行し、ロックファイルの差分を確認してコミットする。
 
 ## Neovim
 

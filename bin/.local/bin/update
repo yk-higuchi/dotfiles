@@ -1,0 +1,76 @@
+#!/bin/bash
+#
+# update - 開発ツールをまとめて更新する
+#
+# 入っていないツールはスキップする。Neovim のプラグインは nvim-pack-lock.json が
+# 変わるため対象外（Neovim で <Space>pu を実行し、差分を確認してコミットする）。
+
+set -eu
+
+has() { command -v "$1" >/dev/null 2>&1; }
+section() { printf '\n==> %s\n' "$1"; }
+
+if has brew; then
+  section "Homebrew"
+  brew update
+  brew upgrade
+  brew cleanup
+fi
+
+if has rustup; then
+  section "Rust"
+  rustup self update
+  rustup update
+fi
+
+if has deno; then
+  section "Deno"
+  deno upgrade
+fi
+
+if has kubectl && kubectl krew version >/dev/null 2>&1; then
+  section "kubectl krew"
+  kubectl krew update
+  kubectl krew upgrade
+fi
+
+# sdk はシェル関数なので、初期化スクリプトを読み込んでから使う
+if [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
+  section "SDKMAN"
+  # sdkman-init.sh は未定義の変数を参照するので、読み込みと実行の間だけ -u を外す
+  set +u
+  # shellcheck source=/dev/null
+  source "$HOME/.sdkman/bin/sdkman-init.sh"
+  sdk selfupdate
+  sdk update
+  set -u
+fi
+
+if has nvim; then
+  section "Neovim (Mason)"
+  nvim --headless -c 'lua
+    local registry = require("mason-registry")
+    local done = false
+    registry.refresh(function() done = true end)
+    vim.wait(60000, function() return done end)
+    local upgrading = {}
+    for _, pkg in ipairs(registry.get_installed_packages()) do
+      local current, latest = pkg:get_installed_version(), pkg:get_latest_version()
+      if current ~= latest then
+        print(("%s: %s -> %s"):format(pkg.name, current or "?", latest))
+        pkg:install()
+        table.insert(upgrading, pkg)
+      end
+    end
+    if #upgrading == 0 then print("all packages are up to date") end
+    vim.wait(900000, function()
+      return vim.iter(upgrading):all(function(pkg) return not pkg:is_installing() end)
+    end, 1000)
+  ' -c 'qa' 2>&1
+  echo
+fi
+
+if has claude; then
+  section "Claude Code"
+  claude update
+fi
