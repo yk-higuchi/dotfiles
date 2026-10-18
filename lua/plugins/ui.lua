@@ -1,4 +1,6 @@
-vim.cmd.colorscheme("tokyonight-night")
+-- IntelliJ IDEA の High contrast に近い、黒背景・白文字の高コントラストなテーマ
+require("modus-themes").setup({ style = "modus_vivendi" })
+vim.cmd.colorscheme("modus_vivendi")
 
 require("lualine").setup({
   options = {

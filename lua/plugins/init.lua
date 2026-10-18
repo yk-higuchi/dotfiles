@@ -18,7 +18,7 @@ vim.api.nvim_create_autocmd("PackChanged", {
 
 vim.pack.add({
   -- UI
-  gh("folke/tokyonight.nvim"),
+  gh("miikanissi/modus-themes.nvim"),
   gh("nvim-lualine/lualine.nvim"),
   gh("folke/which-key.nvim"),
   gh("j-hui/fidget.nvim"),
