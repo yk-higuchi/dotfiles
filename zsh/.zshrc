@@ -22,6 +22,7 @@ export ANDROID_HOME="${HOME}/Library/Android/sdk"
 if [[ -d "${ANDROID_HOME}" ]]; then
   android_build_tool_version=$(find "${ANDROID_HOME}/build-tools" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -V | tail -n 1)
   android_build_tool_version=${android_build_tool_version##*/}
+  PATH="${PATH}:${ANDROID_HOME}/emulator"
   PATH="${PATH}:${ANDROID_HOME}/platform-tools"
   PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin"
   PATH="${PATH}:${ANDROID_HOME}/build-tools/${android_build_tool_version}"
