@@ -1,0 +1,4 @@
+indent_type = "Spaces"
+indent_width = 2
+# function() ... end のような 1 行の関数を展開しない
+collapse_simple_statement = "Always"
