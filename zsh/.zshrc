@@ -31,6 +31,9 @@ PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 [[ -n "${go_root}" ]] && PATH="${PATH}:${go_root}/bin"
 # go install で入れたツール
 PATH="${PATH}:${HOME}/go/bin"
+# Neovim の Mason で入れたツール（ktlint など）。既存のコマンドを優先するため末尾に追加する
+mason_bin="${HOME}/.local/share/nvim/mason/bin"
+[[ -d "${mason_bin}" ]] && PATH="${PATH}:${mason_bin}"
 PATH="$HOME/.local/bin:$PATH"
 export PATH
 
