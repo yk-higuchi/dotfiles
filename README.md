@@ -10,13 +10,14 @@ Neovim の設定は別リポジトリ（[nvim-config](https://github.com/yk-higu
 | --- | --- |
 | `zsh` | `~/.zshrc`、`~/.zprofile`、`~/.zshenv` |
 | `starship` | `~/.config/starship.toml` |
+| `ghostty` | `~/.config/ghostty/config`（Ghostty と cmux が読み込む） |
 
 ## セットアップ
 
 ```sh
 git clone git@github.com:yk-higuchi/dotfiles.git ~/dotfiles
 brew bundle --file ~/dotfiles/Brewfile
-cd ~/dotfiles && stow zsh starship
+cd ~/dotfiles && stow zsh starship ghostty
 ```
 
 既存の `~/.zshrc` などがあると Stow はリンクを張らずに止まるので、退避してから実行する。
