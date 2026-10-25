@@ -24,7 +24,33 @@ for name, type in vim.fs.dir(sdkman_java) do
   end
 end
 
+-- jdtls 本体は JDK 25 で動かす。sdk use / sdk env で JAVA_HOME が 21 などになっていても左右されないよう明示する
+local function jdtls_java()
+  -- 一時的に別の JDK を試したいときは JDTLS_JAVA_HOME で上書きできる
+  if vim.env.JDTLS_JAVA_HOME then return vim.fs.joinpath(vim.env.JDTLS_JAVA_HOME, "bin", "java") end
+
+  -- SDKMAN の 25 系から一番新しいものを選ぶ（同じバージョンは名前順で決める）
+  local best, best_ver
+  for name, type in vim.fs.dir(sdkman_java) do
+    local ver = type == "directory" and name:match("^25%.") and vim.version.parse(name:match("^[%d.]+"))
+    if ver and (not best_ver or ver > best_ver or (ver == best_ver and name > best)) then
+      best, best_ver = name, ver
+    end
+  end
+  if best then return vim.fs.joinpath(sdkman_java, best, "bin", "java") end
+
+  -- SDKMAN 以外で入れた JDK（macOS 標準の java_home）
+  local out = vim.fn.system({ "/usr/libexec/java_home", "-v", "25" })
+  if vim.v.shell_error == 0 then return vim.fs.joinpath(vim.trim(out), "bin", "java") end
+end
+
 local cmd = { "jdtls", "-data", workspace_dir }
+local java = jdtls_java()
+if java then
+  table.insert(cmd, "--java-executable=" .. java)
+else
+  vim.notify("JDK 25 が見つからないため、JAVA_HOME の Java で jdtls を起動します", vim.log.levels.WARN)
+end
 local lombok = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "share", "jdtls", "lombok.jar")
 if vim.uv.fs_stat(lombok) then table.insert(cmd, "--jvm-arg=-javaagent:" .. lombok) end
 
