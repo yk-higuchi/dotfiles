@@ -4,14 +4,12 @@ opt.number = true
 opt.relativenumber = true
 opt.signcolumn = "yes"
 opt.cursorline = true
-opt.termguicolors = true
 opt.scrolloff = 8
 opt.wrap = false
 
 opt.expandtab = true
 opt.shiftwidth = 4
 opt.tabstop = 4
-opt.smartindent = true
 
 opt.ignorecase = true
 opt.smartcase = true
@@ -26,7 +24,6 @@ opt.updatetime = 250
 opt.timeoutlen = 400
 opt.mouse = "a"
 
-opt.completeopt = { "menu", "menuone", "noselect" }
 opt.winborder = "rounded"
 
 vim.diagnostic.config({
