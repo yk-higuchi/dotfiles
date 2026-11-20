@@ -112,23 +112,25 @@ vim.lsp.enable({
 })
 
 -- キーマップ -------------------------------------------------------------------
--- Neovim 標準: K=hover, grn=rename, gra=code action, grr=references,
---              gri=implementation, gO=document symbols, [d / ]d=diagnostic
+-- Neovim 標準: K=hover, grn=rename, gra=code action, grr=references, gri=implementation,
+--              grt=type definition, gO=document symbols, [d / ]d=diagnostic, <C-w>d=診断の表示
+-- kickstart.nvim と同じく gr 系にそろえ、一覧で見たいものだけ fzf 版で上書きする
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("user_lsp", { clear = true }),
   callback = function(ev)
     local fzf = require("fzf-lua")
     local map = function(lhs, rhs, desc) vim.keymap.set("n", lhs, rhs, { buffer = ev.buf, desc = desc }) end
 
-    map("gd", fzf.lsp_definitions, "Goto definition")
-    map("gD", vim.lsp.buf.declaration, "Goto declaration")
-    map("gy", fzf.lsp_typedefs, "Goto type definition")
+    map("grd", fzf.lsp_definitions, "Goto definition")
+    map("grD", vim.lsp.buf.declaration, "Goto declaration")
     map("grr", fzf.lsp_references, "References")
     map("gri", fzf.lsp_implementations, "Implementations")
-    map("<leader>ca", fzf.lsp_code_actions, "Code action")
-    map("<leader>cr", vim.lsp.buf.rename, "Rename")
+    map("grt", fzf.lsp_typedefs, "Type definition")
+    map("gra", fzf.lsp_code_actions, "Code action")
+    map("gO", fzf.lsp_document_symbols, "Document symbols")
+    map("gW", fzf.lsp_live_workspace_symbols, "Workspace symbols")
     map(
-      "<leader>ch",
+      "<leader>th",
       function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = ev.buf }), { bufnr = ev.buf }) end,
       "Toggle inlay hints"
     )

@@ -17,20 +17,25 @@ fzf.setup({
   files = { fd_opts = fd_opts },
   grep = { rg_opts = rg_opts .. " -e" },
 })
+-- vim.ui.select（jdtls の選択肢、vim.lsp.buf.code_action など）も fzf で表示する
+fzf.register_ui_select()
 
-map("n", "<leader>ff", fzf.files, { desc = "Files" })
-map("n", "<leader>sg", fzf.live_grep, { desc = "Live grep" })
-map("n", "<leader>fw", fzf.grep_cword, { desc = "Grep word under cursor" })
-map("v", "<leader>fw", fzf.grep_visual, { desc = "Grep selection" })
-map("n", "<leader>fb", fzf.buffers, { desc = "Buffers" })
-map("n", "<leader>fr", fzf.oldfiles, { desc = "Recent files" })
-map("n", "<leader>fh", fzf.helptags, { desc = "Help" })
-map("n", "<leader>fk", fzf.keymaps, { desc = "Keymaps" })
-map("n", "<leader>fd", fzf.diagnostics_document, { desc = "Diagnostics (buffer)" })
-map("n", "<leader>fD", fzf.diagnostics_workspace, { desc = "Diagnostics (workspace)" })
-map("n", "<leader>fs", fzf.lsp_document_symbols, { desc = "Symbols (buffer)" })
-map("n", "<leader>fS", fzf.lsp_live_workspace_symbols, { desc = "Symbols (workspace)" })
-map("n", "<leader>f.", fzf.resume, { desc = "Resume last picker" })
+map("n", "<leader>sf", fzf.files, { desc = "Files" })
+map("n", "<leader>sg", fzf.live_grep, { desc = "Grep" })
+map("n", "<leader>sw", fzf.grep_cword, { desc = "Word under cursor" })
+map("v", "<leader>sw", fzf.grep_visual, { desc = "Selection" })
+map("n", "<leader>sh", fzf.helptags, { desc = "Help" })
+map("n", "<leader>sk", fzf.keymaps, { desc = "Keymaps" })
+map("n", "<leader>sc", fzf.commands, { desc = "Commands" })
+map("n", "<leader>sd", fzf.diagnostics_document, { desc = "Diagnostics (buffer)" })
+map("n", "<leader>sD", fzf.diagnostics_workspace, { desc = "Diagnostics (workspace)" })
+map("n", "<leader>sr", fzf.resume, { desc = "Resume" })
+map("n", "<leader>s.", fzf.oldfiles, { desc = "Recent files" })
+map("n", "<leader>ss", fzf.builtin, { desc = "Pickers" })
+map("n", "<leader>sn", function() fzf.files({ cwd = vim.fn.stdpath("config") }) end, { desc = "Neovim config" })
+map("n", "<leader>s/", fzf.lines, { desc = "Grep open buffers" })
+map("n", "<leader>/", fzf.blines, { desc = "Search in buffer" })
+map("n", "<leader><leader>", fzf.buffers, { desc = "Buffers" })
 
 -- nvim-tree（ディレクトリツリー）-------------------------------------------------
 require("nvim-tree").setup({
@@ -54,16 +59,44 @@ require("nvim-tree").setup({
 })
 map("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file tree" })
 
--- gitsigns -----------------------------------------------------------------
+-- gitsigns（gitsigns の README / kickstart.nvim の推奨配置）-------------------------
 require("gitsigns").setup({
   on_attach = function(buf)
     local gs = require("gitsigns")
     local o = function(desc) return { buffer = buf, desc = desc } end
-    map("n", "]h", function() gs.nav_hunk("next") end, o("Next hunk"))
-    map("n", "[h", function() gs.nav_hunk("prev") end, o("Prev hunk"))
-    map("n", "<leader>gp", gs.preview_hunk, o("Preview hunk"))
-    map("n", "<leader>gr", gs.reset_hunk, o("Reset hunk"))
-    map("n", "<leader>gb", gs.blame_line, o("Blame line"))
+    -- diff モードでは本来の ]c / [c（差分の移動）を使う
+    map("n", "]c", function()
+      if vim.wo.diff then
+        vim.cmd.normal({ "]c", bang = true })
+      else
+        gs.nav_hunk("next")
+      end
+    end, o("Next git change"))
+    map("n", "[c", function()
+      if vim.wo.diff then
+        vim.cmd.normal({ "[c", bang = true })
+      else
+        gs.nav_hunk("prev")
+      end
+    end, o("Prev git change"))
+
+    local range = function() return { vim.fn.line("."), vim.fn.line("v") } end
+    map("v", "<leader>hs", function() gs.stage_hunk(range()) end, o("Stage hunk"))
+    map("v", "<leader>hr", function() gs.reset_hunk(range()) end, o("Reset hunk"))
+    map("n", "<leader>hs", gs.stage_hunk, o("Stage hunk"))
+    map("n", "<leader>hr", gs.reset_hunk, o("Reset hunk"))
+    map("n", "<leader>hS", gs.stage_buffer, o("Stage buffer"))
+    map("n", "<leader>hR", gs.reset_buffer, o("Reset buffer"))
+    map("n", "<leader>hp", gs.preview_hunk, o("Preview hunk"))
+    map("n", "<leader>hi", gs.preview_hunk_inline, o("Preview hunk inline"))
+    map("n", "<leader>hb", function() gs.blame_line({ full = true }) end, o("Blame line"))
+    map("n", "<leader>hd", gs.diffthis, o("Diff against index"))
+    map("n", "<leader>hD", function() gs.diffthis("~") end, o("Diff against last commit"))
+    map("n", "<leader>hq", gs.setqflist, o("Hunks to quickfix (file)"))
+    map("n", "<leader>hQ", function() gs.setqflist("all") end, o("Hunks to quickfix (repo)"))
+    map("n", "<leader>tb", gs.toggle_current_line_blame, o("Toggle line blame"))
+    map("n", "<leader>tw", gs.toggle_word_diff, o("Toggle word diff"))
+    map({ "o", "x" }, "ih", gs.select_hunk, o("Inside hunk"))
   end,
 })
 

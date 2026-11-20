@@ -17,10 +17,9 @@ require("fidget").setup()
 local wk = require("which-key")
 wk.setup({ icons = { mappings = false } })
 wk.add({
-  { "<leader>f", group = "Find" },
-  { "<leader>s", group = "Search" },
-  { "<leader>c", group = "Code" },
-  { "<leader>g", group = "Git" },
+  { "<leader>s", group = "Search", mode = { "n", "v" } },
+  { "<leader>h", group = "Git hunk", mode = { "n", "v" } },
+  { "<leader>t", group = "Toggle" },
   { "<leader>p", group = "Plugins" },
   { "<leader>j", group = "Java" },
 })
